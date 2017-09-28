@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang ="en">
+	<head >
+		<title>Speech Synthesis</title>
+		<meta charset="UTF-8">
+	</head>
+	<body>
+		<div class="voiceinator">
+			<h1>The Voiceinator</h1>
+			<!--select contains a list of all of our possible voices-->
+			<select name ="voice" id="voices" >
+				<option value="">Select A Voice</option>
+			</select>
+
+			<label for="rate">Rate:</label>
+            <!--rate for changing how fast the person talks -->
+			<input type="range" name="rate" min="0" max="5" value="1" step="0.1">
+
+			<label for="pitch">Pitch:</label>
+            <!--changing pitch -->
+			<input type="range" name="pitch" min="0" max="5" step="0.1">
+            <!-- text to be uttered -->
+			<textarea name="text"> Hello I am Shreya, I am a passionate , full of life , happy go lucky and high on life kind of a person. I love to learn and explore. I am as much into coding as much as I am into extra co-curricular activities. My technical side includes knowledge of C/C++ , Java, Python, JavaScript ,HTML ,CSS ,Android and Web Development , frameworks like Hadoop and Django etc. My cocurricular side includes Dancing ,Diploma in Painting, National Yoga Champion , Skating, Swimming , Acting and Modelling. Yeah thats me n I am a Supergrl ;)</textarea>
+            <!-- the names are imp i.e rate ,pitch and text becz these names line up with the property on the Utterance which is the voice that is going to say it-->
+			<button id="stop">Stop!</button>
+
+			<button id="Speak">Speak!</button>
+			<!-- stop and speak buttons to start and stop saying-->
+
+		</div>
+		<style>
+		html{
+			background: black;
+		}
+		.voiceinator{
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-direction: column;
+			min-height: 100vh;
+			background-color: orange;
+			margin: 10vh 30vh 10vh 30vh;
+			padding: 1vh;
+		}
+		</style>
+		<script type="text/javascript">
+			//Utternace will store what our message will the person say, what will be the speed range voice etc be stored inside msg
+			//SpeechSynthesisUtterance is global variable
+			const msg = new SpeechSynthesisUtterance();
+			
+			//our voices will be dumped into this empty array
+			let voices = [];
+			
+			//selcted everything
+			const voicesDropdown = document.querySelector('[name="voice"]');
+			const options = document.querySelectorAll('[type="range"],[name="text"]');
+			const speakButton = document.querySelector('#speak');
+			const stopButton = document.querySelector('#stop');
+			//on page load whtever we have we will set it to default
+			msg.text = document.querySelector('[name="text"]').value;
+
+			//populating the voices
+			function populateVoices(){
+
+				//puuting all the voices into our array ,speechSynthesis comes with many voices
+				voices = this.getVoices();
+				console.log(voices);
+
+				//looping over all the voices we got in our array and setting them as options
+				const voiceOptions = voices
+				//.filter(voice => voice.lang.includes('en'))
+				.map(voice => `<option value="${voice.name}"> ${voice.name} (${voice.lang}) </option>`).join('');
+				voicesDropdown.innerHTML = voiceOptions;
+					
+			}
+			//function which will set the voice from the list of voices
+			function setVoice(){
+				console.log(this.value);
+
+				//setting the selected voice to our Utterance msg
+				msg.voice = voices.find(voice => voice.name === this.value);
+
+				//calling toggle function to start with new voice
+				toggle();
+			}
+
+
+			function setOption(){
+				console.log(this.name , this.value);
+
+				msg[this.name] = this.value;
+
+				toggle();
+			}
+
+            //if we change in betwwen the language the speech should stop and continue from start in another language
+			function toggle(startOver = true) {
+
+				//toggle first cancels anything we have that is currentlu speaking
+				speechSynthesis.cancel(); 
+
+				//and then starts with a new voice from the front
+				//if(startOver) {
+					speechSynthesis.speak(msg);
+				//}
+			}
+
+			//speechSynthesis is a global variable on which we can trigger speak event and voiceschanges is predefined event
+			speechSynthesis.addEventListener('voiceschanged', populateVoices );
+
+			//to choose from drop down options
+			voicesDropdown.addEventListener('change', setVoice);
+
+			options.forEach(option => option.addEventListener('change', setOption));
+
+			//speakButton.addEventListener('click', toggle);
+			//speakButton.addEventListener('click', () => toggle(false));//ES6
+		</script>
+	</body>
+</html>
